@@ -71,7 +71,7 @@ void MenuSystem::returnToMenu()
 
 void MenuSystem::updateDisplay()
 {
-  LCD.clearCurrentLine();
+  LCD.clearEOL();
   LCD.printAndStay(current->getLabel());
 }
 
