@@ -19,6 +19,7 @@ public:
     minutes = 0;
     seconds = 0;
     photos = 0;
+    setting = false;
   }
   
   virtual void enter()
@@ -35,9 +36,6 @@ public:
   
   virtual void upChanged(bool pressed)
   {
-    if (pressed) {
-      Menu.returnToMenu();
-    }
   }
   
   virtual void downChanged(bool pressed)
@@ -46,17 +44,11 @@ public:
       // Cancel the current set mode in which the user is.
       switch (currentMode)
       {
-      case MODE_SET_DELAY:
-        currentOption = MODE_DISPLAY_DELAY;
-        LCD.stopBlinkingBox();
+      case MODE_DISPLAY_DELAY:
         break;
-      case MODE_SET_GAP:
-        currentOption = MODE_DISPLAY_GAP;
-        LCD.stopBlinkingBox();
+      case MODE_DISPLAY_GAP:
         break;
-      case MODE_SET_PHOTOS:
-        currentOption = MODE_DISPLAY_PHOTOS;
-        LCD.stopBlinkingBox();
+      case MODE_DISPLAY_PHOTOS:
         break;
       }
       updateDisplay();
@@ -68,7 +60,21 @@ public:
     if (pressed && !started) {
       switch (currentMode)
       {
-      case MODE_DISPLAY_STATE:
+      case MODE_DISPLAY_DELAY:
+      case MODE_DISPLAY_GAP:
+      case MODE_DISPLAY_PHOTOS:
+        currentMode--;
+        updateDisplay();
+        break;
+      case MODE_SET_DELAY:
+      case MODE_SET_GAP:
+        if (setting) {
+        } else {
+        }
+        break;
+      case MODE_SET_PHOTOS:
+        if (!setting) {
+        }
         break;
       }
     }
@@ -80,21 +86,21 @@ public:
       switch (currentMode)
       {
       case MODE_DISPLAY_STATE:
-        currentOption = MODE_DISPLAY_DELAY;
-        updateDisplay();
-        break;
       case MODE_DISPLAY_DELAY:
       case MODE_DISPLAY_GAP:
-        currentOption+=2;
+        currentMode++;
         updateDisplay();
         break;
       case MODE_SET_DELAY:
-        break;
       case MODE_SET_GAP:
+        if (setting) {
+        } else {
+        }
         break;
       case MODE_SET_PHOTOS:
+        if (!setting) {
+        }
         break;
-        
       }
     }
   }
@@ -102,44 +108,7 @@ public:
   virtual void centerChanged(bool pressed)
   {
     if (pressed) {
-      switch (currentMode)
-      {
-      case MODE_DISPLAY_STATE:
-        break;
-      case MODE_DISPLAY_DELAY:
-        currentOption = MODE_SET_DELAY;
-        LCD.setPosition(11, 1);
-        LCD.startBlinkingBox();
-        setCTime(delay.getTimeAsLong());
-        break;
-      case MODE_SET_DELAY:
-        currentOption = MODE_DISPLAY_DELAY;
-        LCD.stopBlinkingBox();
-        delay.setTime((long)(cMinutes * 60000 + cSeconds * 1000 + cMicro));
-        break;
-      case MODE_DISPLAY_GAP:
-        currentOption = MODE_SET_GAP;
-        LCD.setPosition(11, 1);
-        LCD.startBlinkingBox();
-        setCTime(delay.getTimeAsLong());
-        break;
-      case MODE_SET_GAP:
-        currentOption = MODE_DISPLAY_GAP;
-        LCD.stopBlinkingBox();
-        gap.setTime((long)(cMinutes * 60000 + cSeconds * 1000 + cMicro));
-        break;
-      case MODE_DISPLAY_PHOTOS:
-        currentOption = MODE_SET_PHOTOS;
-        LCD.setPosition(15, 1);
-        LCD.startBlinkingBox();
-        cPhotos = photos;
-        break
-      case MODE_SET_PHOTOS:
-        currentOption = MODE_DISPLAY_PHOTOS;
-        LCD.stopBlinkingBox();
-        photos = cPhotos;
-        break;
-      }
+      Menu.returnToMenu();
     }
   }  
 protected:
@@ -150,11 +119,18 @@ protected:
     cMicro = (time - cSeconds*1000 - cMinutes*60000);
   }
   
-  void updateTimeDisplay(long time) {
+  long getLongCTime()
+  {
+    return cMinutes * 60000 + cSeconds * 1000 + cMicro;
+  }
+  
+  void updateTimeDisplay(long time)
+  {
     int minutes = time/60000;
     int seconds = (time - minutes*60000)/1000;
     int micros = (time - seconds*1000 - minutes*60000);
     
+    LCD.setPosition(7,1);
     LCD.printFormatedNumber(minutes, 10);
     LCD.print(":");
     LCD.printFormatedNumber(seconds, 10);
@@ -162,7 +138,8 @@ protected:
     LCD.printFormatedNumber(micros, 100);
   }
   
-  void updateDisplay() {
+  void updateDisplay()
+  {
       switch (currentMode)
       {
       case MODE_DISPLAY_STATE:
@@ -175,14 +152,14 @@ protected:
       case MODE_SET_DELAY:
         LCD.setPosition(0,1);
         LCD.clearEOL();
-        LCD.print("Delay: ");
+        LCD.print("Delay:");
         updateTimeDisplay(delay.getTimeAsLong());
         break;
       case MODE_DISPLAY_GAP:
       case MODE_SET_GAP:
         LCD.setPosition(0,1);
         LCD.clearEOL();
-        LCD.print("Gap:   ");
+        LCD.print("Gap:");
         updateTimeDisplay(gap.getTimeAsLong());
         break;
       case MODE_DISPLAY_PHOTOS:
@@ -211,10 +188,10 @@ protected:
   {
     MODE_DISPLAY_STATE,
     MODE_DISPLAY_DELAY,
-    MODE_SET_DELAY,
     MODE_DISPLAY_GAP,
-    MODE_SET_GAP,
     MODE_DISPLAY_PHOTOS,
+    MODE_SET_DELAY,
+    MODE_SET_GAP,
     MODE_SET_PHOTOS,
   };
   
@@ -233,6 +210,7 @@ protected:
   SoftTimer gap;
   int photos;
   
+  bool setting;
   // Temporal variables. Only if center was pressed, the settings will be set, pressing down, will cancel the operation and the original
   // states will be set.
   int cMinute, cSecond, cMicro, cPhotos;
