@@ -50,13 +50,22 @@ public:
   }
   
   /**
-   * Start the time.
+   * Sets the time.
    * 
-   * @param seconds Seocnds until the timer triggers use floating point
-   *   numbers to for miliseconds
+   * @param seconds Seocnds until the timer triggers, the floating point
+   *   numbers represent the miliseconds.
    */
   void setTime(float seconds) {
     time = seconds * 1000;
+  }
+  
+  /**
+   * Sets the time.
+   * 
+   * @param microseconds Microseocnds until the timer triggers.
+   */
+  void setTime(int microseconds) {
+    time = microseconds;
   }
   
   /**
@@ -64,6 +73,13 @@ public:
    */
    float getTime() {
      return ((float)time)/1000;
+   }
+  
+  /**
+   * Retunrs the time in seconds.
+   */
+   float getTimeAsLong() {
+     return time;
    }
   
   /**

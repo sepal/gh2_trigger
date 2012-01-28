@@ -50,7 +50,24 @@ public:
   void print(char c);
   
   /**
-   * Prints a string and moves the cursor back to the previous position
+   * Prints the number with a given number of zeros infront (like 03 or 0050).
+   * @param number The number to be prented.
+   * @param digitRepresenter A 10 based number which reprepesents how many digits you 
+   *    want to print(eg. 10 while print one zero + the number, 100 will print 00 + number and so on).
+   */
+  void printFormatedNumber(int number, int digitRepresenter);
+  
+  /**
+   * Prints the number with a given number of chararacters infront (like P3 or XX5X).
+   * @param number The number to be prented.
+   * @param digitRepresenter A 10 based number which reprepesents how many digits you 
+   *    want to print(eg. 10 while print one zero + the number, 100 will print 00 + number and so on).
+   * @param character The character to be printed infront the number.
+   */
+  void printFormatedNumber(int number, int digitRepresenter, int character);
+  
+  /**
+   * Prints a string and moves the cursor back to the previous position.
    */
   void printAndStay(String s);
   
@@ -97,6 +114,7 @@ public:
    */
   void setBrightness(byte brightness);
 protected:
+
   SoftwareSerial serial;
   byte pos;
   byte line;

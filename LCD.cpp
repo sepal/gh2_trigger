@@ -38,8 +38,24 @@ void LCDHandler::print(String s)
   
 void LCDHandler::print(char c)
 {
-  serial.write(c);
-  pos ++;
+  serial.print(s);
+  pos++;
+}
+
+void LCDHandler::printFormatedNumber(int number, int digitRepresenter)
+{
+  for (int i=digitRepresenter; i>number+1; i=i/10) {
+    print('0');
+  }
+  print(String(number));
+}
+
+void LCDHandler::printFormatedNumber(int number, int digitRepresenter, char character)
+{
+  for (int i=digitRepresenter; i>number+1; i=i/10) {
+    print(character);
+  }
+  print(String(number));
 }
 
 void LCDHandler::printAndStay(String s)
