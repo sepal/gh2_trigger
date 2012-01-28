@@ -89,6 +89,13 @@ public:
   const char* getLabel();
   
   virtual void enter() {}
+  
+  virtual void update() {}
+  
+  /**
+   * If true, blocks the rest of the programm.
+   */   
+  virtual bool blocking() {return false;}
 
 protected:
   const char* label;

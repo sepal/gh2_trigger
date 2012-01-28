@@ -16,6 +16,10 @@ public:
   virtual void rightChanged(bool pressed);
   virtual void centerChanged(bool pressed);
   
+  void update();
+  
+  bool blockSystem();
+  
   void returnToMenu();
 private:
   MenuEntry* current;

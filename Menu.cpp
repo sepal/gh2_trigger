@@ -59,6 +59,16 @@ void MenuSystem::centerChanged(bool pressed)
   }
 }
 
+void MenuSystem::update()
+{
+    current->update();
+}
+
+bool MenuSystem::blockSystem()
+{
+    return current->blocking();
+}
+
 void MenuSystem::returnToMenu()
 {
   LCD.clear();

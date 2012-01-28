@@ -27,7 +27,7 @@
 #ifndef _SOFTTIMER_H_
 #define _SOFTTIMER_H_
 
-#include "WProgram.h"
+#include "Arduino.h"
 
 /**
  * This class will allow you to determine if a certain time has passed.
