@@ -6,13 +6,13 @@
 #include "Menu.h"
 #include "Touchpad.h"
 #include "MenuEntryCamTrigger.h"
-#include "TimeSetter.h"
+#include "TimeSetAction.h"
 
 
 class SimpleTimer : public MenuEntryCamTrigger
 {
 public:
-  SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry), delaySetter("Delay", 3000, this), gapSetter("Gap", 10000, this)
+  SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry), delaySetAction("Delay", 3000, this), gapSetAction("Gap", 10000, this)
   {
     pinMode(13, OUTPUT);
     shutterOffTimer.setTime(0.5f);
@@ -20,6 +20,7 @@ public:
     photos = 5;
     gapTimer.setTime(10.0f);
     delay = 3;
+    position = 0;
   }
   
   virtual void enter()
@@ -30,7 +31,6 @@ public:
     LCD.setPosition(0,1);
     LCD.print("Shutter: ");
     LCD.printAndStay("Off");
-    position = 0;
     Touchpad.setHandler(this);
   }
   
@@ -44,12 +44,12 @@ public:
         case 0:
           break;
         case 1:
-          Touchpad.setHandler(&delaySetter);
-          delaySetter.enter();
+          Touchpad.setHandler(&delaySetAction);
+          delaySetAction.enter();
           break;
         case 2:
-          Touchpad.setHandler(&gapSetter);
-          gapSetter.enter();
+          Touchpad.setHandler(&gapSetAction);
+          gapSetAction.enter();
           break;
       }
     }
@@ -67,7 +67,7 @@ public:
           position--;
           break;
         case 2:
-          delaySetter.printStuff();
+          delaySetAction.printStuff();
           position--;
           break;
       }
@@ -79,12 +79,12 @@ public:
     if (pressed) {
       switch (position) {
         case 0 :
-          delaySetter.printStuff();
+          delaySetAction.printStuff();
           position++;
           break;
         case 1:
           position++;
-          gapSetter.printStuff();
+          gapSetAction.printStuff();
           break;
         case 2:
           break;
@@ -103,10 +103,10 @@ public:
     Touchpad.setHandler(this);
     switch (position) {
       case 1:
-        delay = delaySetter.getTime();
+        delay = delaySetAction.getTime();
         break;
       case 2:
-        gapTimer.setTime(gapSetter.getTime());
+        gapTimer.setTime(gapSetAction.getTime());
         break;
     }
   }
@@ -116,10 +116,10 @@ protected:
   {
     switch (position) {
       case 1:
-        delaySetter.loop();
+        delaySetAction.update();
         break;
       case 2:
-        delaySetter.loop();
+        delaySetAction.update();
         break;
     }
   }
@@ -139,8 +139,8 @@ protected:
  
   int position;
   
-  TimeSetter delaySetter;
-  TimeSetter gapSetter;
+  TimeSetAction delaySetAction;
+  TimeSetAction gapSetAction;
 };
 
 #endif//_SIMPLE_TIMER_H_
