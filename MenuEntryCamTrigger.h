@@ -5,10 +5,11 @@
 #include "MenuEntry.h"
 #include "TouchpadHandler.h"
 #include "SoftTimer.h"
+#include "ExtendedHandler.h"
 
 #define PIN_SHUTTER 4
 
-class MenuEntryCamTrigger : public MenuEntry, public TouchpadEventHandler
+class MenuEntryCamTrigger : public MenuEntry, public ExtendedHandler
 {
 public:
 

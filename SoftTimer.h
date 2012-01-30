@@ -62,10 +62,10 @@ public:
   /**
    * Sets the time.
    * 
-   * @param microseconds Microseocnds until the timer triggers.
+   * @param milliseconds milliseocnds until the timer triggers.
    */
-  void setTime(int microseconds) {
-    time = microseconds;
+  void setTime(long milliseconds) {
+    time = milliseconds;
   }
   
   /**

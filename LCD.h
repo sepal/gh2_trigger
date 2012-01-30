@@ -113,6 +113,8 @@ public:
    * @param brightness A value between 0(off) and 29(full).
    */
   void setBrightness(byte brightness);
+  
+  byte getPosition();
 protected:
 
   SoftwareSerial serial;

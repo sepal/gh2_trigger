@@ -13,7 +13,7 @@ public:
   TriggerOnTouch(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry)
   {
     pinMode(13, OUTPUT);
-    shutterOffTimer.setTime(0.5);
+    shutterOffTimer.setTime(0.5f);
     wipeDetection = false;
   }
   

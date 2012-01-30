@@ -6,101 +6,88 @@
 #include "Menu.h"
 #include "Touchpad.h"
 #include "MenuEntryCamTrigger.h"
+#include "TimeSetter.h"
 
-class SimpleTimer : MenuEntryCamTrigger
+
+class SimpleTimer : public MenuEntryCamTrigger
 {
 public:
-  SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry)
+  SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry), delaySetter("Delay", 3000, this), gapSetter("Gap", 10000, this)
   {
     pinMode(13, OUTPUT);
-    shutterOffTimer.setTime(0.5);
+    shutterOffTimer.setTime(0.5f);
     wipeDetection = false;
-    started = false;
-    minutes = 0;
-    seconds = 0;
-    photos = 0;
-    setting = false;
+    photos = 5;
+    gapTimer.setTime(10.0f);
+    delay = 3;
   }
   
   virtual void enter()
   {
-    Touchpad.setHandler(this);
-    currentMode = MODE_DISPLAY_STATE;
     LCD.clear();
     LCD.setPosition(0,0);
-    LCD.print("Simple Timer");
+    LCD.print("Touch Trigger");
     LCD.setPosition(0,1);
-    LCD.print("State: ");
+    LCD.print("Shutter: ");
     LCD.printAndStay("Off");
+    position = 0;
+    Touchpad.setHandler(this);
   }
   
   virtual void upChanged(bool pressed)
-  {
-  }
+  {}
   
   virtual void downChanged(bool pressed)
   {
     if (pressed) {
-      // Cancel the current set mode in which the user is.
-      switch (currentMode)
-      {
-      case MODE_DISPLAY_DELAY:
-        break;
-      case MODE_DISPLAY_GAP:
-        break;
-      case MODE_DISPLAY_PHOTOS:
-        break;
+      switch (position) {
+        case 0:
+          break;
+        case 1:
+          Touchpad.setHandler(&delaySetter);
+          delaySetter.enter();
+          break;
+        case 2:
+          Touchpad.setHandler(&gapSetter);
+          gapSetter.enter();
+          break;
       }
-      updateDisplay();
     }
   }
   
   virtual void leftChanged(bool pressed)
   {
-    if (pressed && !started) {
-      switch (currentMode)
-      {
-      case MODE_DISPLAY_DELAY:
-      case MODE_DISPLAY_GAP:
-      case MODE_DISPLAY_PHOTOS:
-        currentMode--;
-        updateDisplay();
-        break;
-      case MODE_SET_DELAY:
-      case MODE_SET_GAP:
-        if (setting) {
-        } else {
-        }
-        break;
-      case MODE_SET_PHOTOS:
-        if (!setting) {
-        }
-        break;
+    if (pressed) {
+      switch (position) {
+        case 1:
+          LCD.setPosition(0,1);
+          LCD.clearEOL();
+          LCD.print("Shutter: ");
+          LCD.printAndStay("Off");
+          position--;
+          break;
+        case 2:
+          delaySetter.printStuff();
+          position--;
+          break;
       }
     }
   }
   
   virtual void rightChanged(bool pressed)
   {
-    if (pressed && !started) {
-      switch (currentMode)
-      {
-      case MODE_DISPLAY_STATE:
-      case MODE_DISPLAY_DELAY:
-      case MODE_DISPLAY_GAP:
-        currentMode++;
-        updateDisplay();
-        break;
-      case MODE_SET_DELAY:
-      case MODE_SET_GAP:
-        if (setting) {
-        } else {
-        }
-        break;
-      case MODE_SET_PHOTOS:
-        if (!setting) {
-        }
-        break;
+    if (pressed) {
+      switch (position) {
+        case 0 :
+          delaySetter.printStuff();
+          position++;
+          break;
+        case 1:
+          position++;
+          gapSetter.printStuff();
+          break;
+        case 2:
+          break;
       }
     }
   }
@@ -110,70 +97,32 @@ public:
     if (pressed) {
       Menu.returnToMenu();
     }
-  }  
+  }
+  
+  virtual void restoreHandler() {
+    Touchpad.setHandler(this);
+    switch (position) {
+      case 1:
+        delay = delaySetter.getTime();
+        break;
+      case 2:
+        gapTimer.setTime(gapSetter.getTime());
+        break;
+    }
+  }
+  
 protected:
-  void setCTime(long time)
-  {
-    cMinutes = time/60000;
-    cSeconds = (time - cMinutes*60000)/1000;
-    cMicro = (time - cSeconds*1000 - cMinutes*60000);
-  }
-  
-  long getLongCTime()
-  {
-    return cMinutes * 60000 + cSeconds * 1000 + cMicro;
-  }
-  
-  void updateTimeDisplay(long time)
-  {
-    int minutes = time/60000;
-    int seconds = (time - minutes*60000)/1000;
-    int micros = (time - seconds*1000 - minutes*60000);
-    
-    LCD.setPosition(7,1);
-    LCD.printFormatedNumber(minutes, 10);
-    LCD.print(":");
-    LCD.printFormatedNumber(seconds, 10);
-    LCD.print(".");
-    LCD.printFormatedNumber(micros, 100);
-  }
-  
-  void updateDisplay()
-  {
-      switch (currentMode)
-      {
-      case MODE_DISPLAY_STATE:
-        LCD.setPosition(0,1);
-        LCD.clearEOL();
-        LCD.print("State: ");
-        LCD.print("Off");
-        break;
-      case MODE_DISPLAY_DELAY:
-      case MODE_SET_DELAY:
-        LCD.setPosition(0,1);
-        LCD.clearEOL();
-        LCD.print("Delay:");
-        updateTimeDisplay(delay.getTimeAsLong());
-        break;
-      case MODE_DISPLAY_GAP:
-      case MODE_SET_GAP:
-        LCD.setPosition(0,1);
-        LCD.clearEOL();
-        LCD.print("Gap:");
-        updateTimeDisplay(gap.getTimeAsLong());
-        break;
-      case MODE_DISPLAY_PHOTOS:
-      case MODE_SET_PHOTOS:
-        LCD.setPosition(0,1);
-        LCD.clearEOL();
-        LCD.print("# of Pics: ");
-        LCD.printFormatedNumber(photos, 10000);
-        break;
-      }
-  }
-  
   virtual void loop()
-  {}
+  {
+    switch (position) {
+      case 1:
+        delaySetter.loop();
+        break;
+      case 2:
+        delaySetter.loop();
+        break;
+    }
+  }
   
   virtual void triggered(bool on)
   {
@@ -184,36 +133,14 @@ protected:
     }
   }
   
-  enum Mode
-  {
-    MODE_DISPLAY_STATE,
-    MODE_DISPLAY_DELAY,
-    MODE_DISPLAY_GAP,
-    MODE_DISPLAY_PHOTOS,
-    MODE_SET_DELAY,
-    MODE_SET_GAP,
-    MODE_SET_PHOTOS,
-  };
-  
-  enum TimePos
-  {
-    TIMEPOS_MINUTES,
-    TIMEPOS_SECONDS,
-    TIMEPOS_MICRO,
-  }
-  
-  Mode currentMode;
-  TimePos timePos;
-  
-  bool started;
-  SofTimer delay;
-  SoftTimer gap;
+  SoftTimer gapTimer;
   int photos;
+  long delay;
+ 
+  int position;
   
-  bool setting;
-  // Temporal variables. Only if center was pressed, the settings will be set, pressing down, will cancel the operation and the original
-  // states will be set.
-  int cMinute, cSecond, cMicro, cPhotos;
+  TimeSetter delaySetter;
+  TimeSetter gapSetter;
 };
 
 #endif//_SIMPLE_TIMER_H_

@@ -38,7 +38,7 @@ void LCDHandler::print(String s)
   
 void LCDHandler::print(char c)
 {
-  serial.print(s);
+  serial.print(c);
   pos++;
 }
 
@@ -50,7 +50,7 @@ void LCDHandler::printFormatedNumber(int number, int digitRepresenter)
   print(String(number));
 }
 
-void LCDHandler::printFormatedNumber(int number, int digitRepresenter, char character)
+void LCDHandler::printFormatedNumber(int number, int digitRepresenter, int character)
 {
   for (int i=digitRepresenter; i>number+1; i=i/10) {
     print(character);
@@ -113,6 +113,11 @@ void LCDHandler::setBrightness(byte brightness)
 {      
   serial.write(124);
   serial.write(128+brightness);
+}
+
+byte LCDHandler::getPosition()
+{
+  return pos;
 }
 
 LCDHandler LCD(LCD_PIN_RX, LCD_PIN_TX);
