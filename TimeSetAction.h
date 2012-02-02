@@ -13,7 +13,7 @@
 class TimeSetAction : public MenuAction
 {
 public:
-  TimeSetAction(const char* label, long time, ExtendedHandler* parentHandler) : MenuAction(label, parentHandler)
+  TimeSetAction(const char* label, ExtendedHandler* parentHandler, long time) : MenuAction(label, parentHandler)
   {
     cMinutes = time / 60000;
     cSeconds = (time - cMinutes * 60000) / 1000;
@@ -155,7 +155,7 @@ public:
   
   long getTime() 
   {
-    return cMinutes*60000+cSeconds*1000*cMillis;
+    return cMinutes*60000+cSeconds*1000+cMillis;
   }
 protected:
   int pos;

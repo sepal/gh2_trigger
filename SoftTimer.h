@@ -102,6 +102,7 @@ public:
     last = millis();
     started = true;
   }
+  
   /**
    * Start the timer with a delay.
    * 
@@ -118,6 +119,21 @@ public:
   }
   
   /**
+   * Start the timer with a delay.
+   * 
+   * @param seconds Seocnds until the timer triggers use floating point
+   *   numbers to for miliseconds
+   *
+   * @param startDelay delays the first countdown for the given time in 
+   *   seocnds, usefull for timers which trigger altenate to others.
+   * 
+   */
+  void startWithDelay(long startDelay) {
+    offset = startDelay;
+    start();
+  }
+  
+  /**
    * Stop the timer.
    */
   void stop() {
@@ -128,7 +144,7 @@ public:
    * Returns the milliseconds until the timer is ready.
    */
   long until() {
-    return time-millis();
+    return time+offset-(millis()-last);
   }
 
   /**

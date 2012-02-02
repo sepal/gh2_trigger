@@ -42,17 +42,19 @@ void LCDHandler::print(char c)
   pos++;
 }
 
-void LCDHandler::printFormatedNumber(int number, int digitRepresenter)
+void LCDHandler::printFormatedNumber(int number, long digitRepresenter)
 {
-  for (int i=digitRepresenter; i>number+1; i=i/10) {
+  int cycles = (number==0 ? number+2 : number+1);
+  for (long i=digitRepresenter; i>=cycles; i=i/10) {
     print('0');
   }
   print(String(number));
 }
 
-void LCDHandler::printFormatedNumber(int number, int digitRepresenter, int character)
+void LCDHandler::printFormatedNumber(int number, long digitRepresenter, int character)
 {
-  for (int i=digitRepresenter; i>number+1; i=i/10) {
+  int cycles = (number==0 ? number+2 : number+1);
+  for (long i=digitRepresenter; i>=cycles; i=i/10) {
     print(character);
   }
   print(String(number));

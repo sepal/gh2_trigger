@@ -21,6 +21,7 @@ MenuEntryCamTrigger::MenuEntryCamTrigger(const char* label, MenuEntry *prevEntry
 void MenuEntryCamTrigger::update()
 {
   if (shutterOffTimer.ready()) {
+    shutterOffTimer.stop();
     digitalWrite(PIN_SHUTTER, LOW);
     triggered(false);
     block = false;

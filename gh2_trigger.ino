@@ -19,6 +19,7 @@ SimpleTimer mnu_trigger_simple_timer("Simple timer", &mnu_trigger);
 
 void setup()
 {
+  Serial.begin(9600);
   LCD.initialize(9600);
   LCD.stopBlinkingBox();
   Touchpad.initialize();
