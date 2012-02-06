@@ -169,7 +169,7 @@ void SimpleTimer::triggered(bool on)
     digitalWrite(13, HIGH);
   } else {
     photosMade++;
-    if (photosMade <= photos || photos == 0) {
+    if (photosMade < photos || photos == 0) {
       digitalWrite(13, LOW);
       gapTimer.start();
     } else {
