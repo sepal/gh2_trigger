@@ -78,7 +78,6 @@ protected:
   
   TimeSetAction intervalSetAction;
   TimeSetAction lengthSetAction;
-  IntSetAction photosSetAction;
   IntSetAction exposuresSetAction;
   
 };
