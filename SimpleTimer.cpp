@@ -18,7 +18,7 @@ void SimpleTimer::enter()
 {
   LCD.clear();
   LCD.setPosition(0,0);
-  LCD.print("Touch Trigger");
+  LCD.print(label);
   switch (position) {
     case 0:
       LCD.setPosition(0,1);
@@ -39,43 +39,14 @@ void SimpleTimer::enter()
 }
 
 void SimpleTimer::upChanged(bool pressed)
-{}
+{
+  if (pressed && !active) {
+    Menu.returnToMenu();
+  }
+}
 
 void SimpleTimer::downChanged(bool pressed)
 {
-  if (pressed) {
-    switch (position) {
-      case 0:
-        if (active) {
-          LCD.setPosition(0,1);
-          LCD.clearEOL();
-          LCD.print("Timer: ");
-          LCD.printAndStay("Off");
-          gapTimer.stop();
-          active = false;
-        } else {
-          LCD.setPosition(0,1);
-          LCD.clearEOL();
-          LCD.print("Timer: ");
-          LCD.printAndStay("On");
-          gapTimer.startWithDelay(delay);
-          active = true;
-        }
-        break;
-      case 1:
-        Touchpad.setHandler(&delaySetAction);
-        delaySetAction.enter();
-        break;
-      case 2:
-        Touchpad.setHandler(&gapSetAction);
-        gapSetAction.enter();
-        break;
-      case 3:
-        Touchpad.setHandler(&photosSetAction);
-        photosSetAction.enter();
-        break;
-    }
-  }
 }
 
 void SimpleTimer::leftChanged(bool pressed)
@@ -85,7 +56,7 @@ void SimpleTimer::leftChanged(bool pressed)
       case 1:
         LCD.setPosition(0,1);
         LCD.clearEOL();
-        LCD.print("Shutter: ");
+        LCD.print("Timer: ");
         LCD.printAndStay("Off");
         position--;
         break;
@@ -123,10 +94,41 @@ void SimpleTimer::rightChanged(bool pressed)
 
 void SimpleTimer::centerChanged(bool pressed)
 {
-  if (pressed && !active) {
-    Menu.returnToMenu();
+  if (pressed) {
+    switch (position) {
+      case 0:
+        if (active) {
+          LCD.setPosition(0,1);
+          LCD.clearEOL();
+          LCD.print("Timer: ");
+          LCD.printAndStay("Off");
+          gapTimer.stop();
+          active = false;
+        } else {
+          LCD.setPosition(0,1);
+          LCD.clearEOL();
+          LCD.print("Timer: ");
+          LCD.printAndStay("On");
+          gapTimer.startWithDelay(delay);
+          active = true;
+        }
+        break;
+      case 1:
+        Touchpad.setHandler(&delaySetAction);
+        delaySetAction.enter();
+        break;
+      case 2:
+        Touchpad.setHandler(&gapSetAction);
+        gapSetAction.enter();
+        break;
+      case 3:
+        Touchpad.setHandler(&photosSetAction);
+        photosSetAction.enter();
+        break;
+    }
   }
 }
+
 void SimpleTimer::restoreHandler()
 {
   Touchpad.setHandler(this);

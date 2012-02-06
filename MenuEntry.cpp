@@ -72,15 +72,16 @@ void MenuEntry::setVerticalCircle(MenuEntry *parent)
 MenuEntry* MenuEntry::previous()
 {
   // Pass the parent to the returned element, so that you easily can go up in the hierarchy.
-  if (this->parentElement)
+  if (this->parentElement && nextElement)
     previousElement->setParent(this->parentElement);
+  
   return this->previousElement == 0 ? this : this->previousElement;
 }
 
 MenuEntry* MenuEntry::next()
 {
   // Pass the parent to the returned element, so that you easily can go up in the hierarchy.
-  if (this->parentElement)
+  if (this->parentElement && nextElement)
     nextElement->setParent(this->parentElement);
   
   return this->nextElement == 0 ? this : this->nextElement;

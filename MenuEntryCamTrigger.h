@@ -47,6 +47,11 @@ public:
    * Tells the menu system to block the system.
    */
   virtual bool blocking();
+  
+  /**
+   * Overrides MenuEntry::hasAction()
+   */
+  virtual bool hasActions();
 protected:
   /**
    * Triggers the shutter for the given time.

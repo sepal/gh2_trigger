@@ -34,6 +34,11 @@ bool MenuEntryCamTrigger::blocking()
   return block;
 }
 
+bool MenuEntryCamTrigger::hasActions()
+{
+  return true;
+}
+
 void MenuEntryCamTrigger::trigger()
 {
   digitalWrite(PIN_SHUTTER, HIGH);

@@ -16,8 +16,8 @@ void MenuSystem::initialize(MenuEntry* startEntry)
 
 void MenuSystem::upChanged(bool pressed)
 {
-  if (pressed) {
-    this->current = current->parent();
+  if (pressed && current->parent() != current) {
+    current = current->parent();
     LCD.clear();
     LCD.setPosition(0,0);
     updateDisplay();
@@ -27,8 +27,10 @@ void MenuSystem::upChanged(bool pressed)
 void MenuSystem::downChanged(bool pressed)
 {
   if (pressed) {
-    if (current != current->sub()) {
-      this->current = current->sub();
+    if (current->hasActions()) {
+      current->enter();
+    }else if (current != current->sub()) {
+      current = current->sub();
       LCD.setPosition(0,1);
       LCD.print('-');
       updateDisplay();
@@ -38,26 +40,22 @@ void MenuSystem::downChanged(bool pressed)
 
 void MenuSystem::leftChanged(bool pressed)
 {
-  if (pressed) {
-    this->current = current->previous();
+  if (pressed && current->previous() != current) {
+    current = current->previous();
     updateDisplay();
   }
 }
 
 void MenuSystem::rightChanged(bool pressed)
 {
-  if (pressed) {
-    this->current = current->next();
+  if (pressed && current->next() != current) {
+    current = current->next();
     updateDisplay();
   }
 }
 
 void MenuSystem::centerChanged(bool pressed)
-{
-  if (pressed) {
-    current->enter();
-  }
-}
+{}
 
 void MenuSystem::update()
 {

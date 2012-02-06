@@ -102,6 +102,11 @@ public:
    * If true, blocks the rest of the programm.
    */   
   virtual bool blocking() {return false;}
+  
+  /**
+   * Should return true if enter is overriden, so that the menu handler knows it can call enter.
+   */
+  virtual bool hasActions() {return false;}
 
 protected:
   const char* label;
