@@ -9,12 +9,14 @@
 
 #include "TriggerOnTouch.h"
 #include "SimpleTimer.h"
+#include "Intervalometer.h"
 
 MenuEntry mnu_trigger("Trigger");
 MenuEntry mnu_wlan("WLAN", &mnu_trigger);
 
 //TriggerOnTouch mnu_trigger_touch("On touch", &mnu_trigger);
 SimpleTimer mnu_trigger_simple_timer("Simple timer", &mnu_trigger);
+Intervalometer mnu_trigger_intervalometer("Timelapse", &mnu_trigger_simple_timer);
 
 
 void setup()
