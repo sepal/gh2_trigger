@@ -114,6 +114,9 @@ public:
    */
   void setBrightness(byte brightness);
   
+  /**
+   * Returns the current position of the LCD.
+   */
   byte getPosition();
 protected:
 

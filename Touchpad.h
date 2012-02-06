@@ -7,16 +7,38 @@
 #include "Arduino.h"
 #include "TouchpadHandler.h"
 
+/**
+ * Handles all the stuff which has to todo with the touchpad and relays the events to a 
+ * TouchpadEventHandler object.
+ * This class uses the i2cdev(https://github.com/jrowberg/i2cdevlib) and especially the mpr121 lib.
+ */
 class TouchpadHandler
 {
 public:
+  /**
+   * Initializes the variables.
+   */
   TouchpadHandler();
   
+  /**
+   * Initializes the mpr object.
+   */
   void initialize();
+  
+  /**
+   * Updates the mpr121 and the touchpad event handler.
+   */
   void update();
+  
+  /**
+   * Sets the currrent touchpad event handler which should receive touch events.
+   */
   void setHandler(TouchpadEventHandler* handler);
   
 private:
+  /**
+   * Checks if there was a wipe from one pad to another
+   */
   void checkWipes(bool centerState, byte padLeft, byte padRight);
   
   

@@ -30,17 +30,15 @@
 #include "Arduino.h"
 
 /**
- * This class will allow you to determine if a certain time has passed.
- * It does that using the arduino function millis, so I don't know how
- * accurate it is, but it's certain that will not work for peroids 
- * longer than approximately 50 days, since the number will then 
- * overflow.
+ * This class will allow you to determine if a certain time has passed. It does that using the 
+ * arduino function millis(), so I don't know how accurate it is, but it's certain that will not 
+ * work for peroids longer than approximately 50 days, since the number will then overflow.
  */
 class SoftTimer
 {
 public:
   /**
-   * create and initialize the timer.
+   * Create and initialize the timer.
    */
   SoftTimer() {
     started = false;
@@ -120,9 +118,6 @@ public:
   
   /**
    * Start the timer with a delay.
-   * 
-   * @param seconds Seocnds until the timer triggers use floating point
-   *   numbers to for miliseconds
    *
    * @param startDelay delays the first countdown for the given time in 
    *   seocnds, usefull for timers which trigger altenate to others.
@@ -163,6 +158,9 @@ public:
     return false;
   }
   
+  /**
+   * Returns true if the timer was started.
+   */
   boolean isStarted() {
     return started;
   }

@@ -10,9 +10,16 @@
 #define TIME_SETTER_INPUT_TIMER 0.15f
 #define TIME_SETTER_INPUT_DELAY 0.8f
 
+/**
+ * This MenuAction class is used to allow users to set time fields like the interval of timelapses 
+ * shots.
+ */
 class TimeSetAction : public MenuAction
 {
 public:
+  /**
+   * Constructor which initializes the parent class MenuAction as well as all variables.
+   */
   TimeSetAction(const char* label, ExtendedHandler* parentHandler, long time) : MenuAction(label, parentHandler)
   {
     cMinutes = time / 60000;
@@ -21,6 +28,9 @@ public:
     pos = 4;
   }
   
+  /**
+   * Overrides MenuAction::printStuff();
+   */
   virtual void printStuff()
   {
     LCD.setPosition(0, 1);
@@ -35,6 +45,9 @@ public:
     LCD.printFormatedNumber(cMillis, 100);
   }
   
+  /**
+   * Overrides TouchpadEventHandler::enter();
+   */
   virtual void enter()
   {
     Touchpad.setHandler(this);
@@ -43,10 +56,104 @@ public:
     pos = 4;
   }
   
+  /**
+   * Overrides MenuAction::updateInput();
+   */
   virtual void updateInput() {
     modTime();
   }
   
+  /**
+   * Overrides TouchpadEventHandler::upChanged();
+   */
+  virtual void upChanged(bool pressed)
+  {
+    if (pressed) {
+      inputTimer.start(TIME_SETTER_INPUT_TIMER, TIME_SETTER_INPUT_DELAY);
+      LCD.stopBlinkingBox();
+      add = 1;
+      modTime();
+    } else {
+      inputTimer.stop();
+      LCD.startBlinkingBox();
+    }
+  }
+  
+  /**
+   * Overrides TouchpadEventHandler::downChanged();
+   */
+  virtual void downChanged(bool pressed)
+  {
+    if (pressed) {
+      inputTimer.start(TIME_SETTER_INPUT_TIMER, TIME_SETTER_INPUT_DELAY);
+      LCD.stopBlinkingBox();
+      add = -1;
+      modTime();
+    } else {
+      inputTimer.stop();
+      LCD.startBlinkingBox();
+    }
+  }
+  
+  /**
+   * Overrides TouchpadEventHandler::leftChanged();
+   */
+  virtual void leftChanged(bool pressed)
+  {
+    if (pressed) {
+      switch (pos) {
+        case 1:
+        case 4:
+        case 7:
+        case 8:
+          pos--;
+          LCD.setPosition(7+pos, 1);
+          break;
+        case 3:
+        case 6:
+          pos-=2;
+          LCD.setPosition(7+pos, 1);
+          break;
+      }
+    }
+  }
+  
+  /**
+   * Overrides TouchpadEventHandler::rightChanged();
+   */
+  virtual void rightChanged(bool pressed)
+  {
+    if (pressed) {
+      switch (pos) {
+        case 0:
+        case 3:
+        case 6:
+        case 7:
+          pos++;
+          LCD.setPosition(7+pos, 1);
+          break;
+        case 1:
+        case 4:
+          pos+=2;
+          LCD.setPosition(7+pos, 1);
+      }
+    }
+  }
+  
+  /**
+   * Returns the time which was set by the user.
+   */
+  long getTime() 
+  {
+    return cMinutes*60000+cSeconds*1000+cMillis;
+  }
+protected:
+  int pos;
+  int cMinutes, cSeconds, cMillis;
+  
+  /**
+   * Change the correct member dependend on the current cursor position.
+   */
   void modTime() {
     switch (pos) {
       case 0:
@@ -75,6 +182,10 @@ public:
     }
   }
   
+  /**
+   * Add or subtract a value of variable and print it.
+   * this function is used to to modify the members cMinute, cSecond and cMillis.
+   */
   void modifyTime(int *var, int times, int lcdPos, int max) {
     (*var)+=add*times;
     if ((*var) > max) {
@@ -87,78 +198,5 @@ public:
     LCD.printFormatedNumber((*var), 10);
     LCD.setPosition(orgPos, 1);
   }
-  
-  virtual void upChanged(bool pressed)
-  {
-    if (pressed) {
-      inputTimer.start(TIME_SETTER_INPUT_TIMER, TIME_SETTER_INPUT_DELAY);
-      LCD.stopBlinkingBox();
-      add = 1;
-      modTime();
-    } else {
-      inputTimer.stop();
-      LCD.startBlinkingBox();
-    }
-  }
-  
-  virtual void downChanged(bool pressed)
-  {
-    if (pressed) {
-      inputTimer.start(TIME_SETTER_INPUT_TIMER, TIME_SETTER_INPUT_DELAY);
-      LCD.stopBlinkingBox();
-      add = -1;
-      modTime();
-    } else {
-      inputTimer.stop();
-      LCD.startBlinkingBox();
-    }
-  }
-  
-  virtual void leftChanged(bool pressed)
-  {
-    if (pressed) {
-      switch (pos) {
-        case 1:
-        case 4:
-        case 7:
-        case 8:
-          pos--;
-          LCD.setPosition(7+pos, 1);
-          break;
-        case 3:
-        case 6:
-          pos-=2;
-          LCD.setPosition(7+pos, 1);
-          break;
-      }
-    }
-  }
-  
-  virtual void rightChanged(bool pressed)
-  {
-    if (pressed) {
-      switch (pos) {
-        case 0:
-        case 3:
-        case 6:
-        case 7:
-          pos++;
-          LCD.setPosition(7+pos, 1);
-          break;
-        case 1:
-        case 4:
-          pos+=2;
-          LCD.setPosition(7+pos, 1);
-      }
-    }
-  }
-  
-  long getTime() 
-  {
-    return cMinutes*60000+cSeconds*1000+cMillis;
-  }
-protected:
-  int pos;
-  int cMinutes, cSeconds, cMillis;
 };
 #endif//_TIME_SET_ACTION_H_

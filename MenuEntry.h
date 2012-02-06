@@ -88,8 +88,14 @@ public:
    */
   const char* getLabel();
   
+  /**
+   * Called when the menu system wants to pass the touchpad handling to the current menu entry.
+   */
   virtual void enter() {}
   
+  /**
+   * Called when the menu entry is updatet(which is every loop iteration).
+   */
   virtual void update() {}
   
   /**

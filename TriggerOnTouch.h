@@ -7,6 +7,9 @@
 #include "Touchpad.h"
 #include "MenuEntryCamTrigger.h"
 
+/**
+ * 
+ */
 class TriggerOnTouch : MenuEntryCamTrigger
 {
 public:

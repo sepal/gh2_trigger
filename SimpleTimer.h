@@ -9,187 +9,70 @@
 #include "TimeSetAction.h"
 #include "IntSetAction.h"
 
-
+/**
+ * An active menu entry which makes a certain amount of photos with certain time inbetween.
+ */
 class SimpleTimer : public MenuEntryCamTrigger
 {
 public:
-  SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry), delaySetAction("Delay", this, 1000), gapSetAction("Gap", this, 3000), photosSetAction("Pictures", this, 5)
-  {
-    pinMode(13, OUTPUT);
-    shutterOffTimer.setTime(0.5f);
-    wipeDetection = false;
-    photos = 5;
-    gapTimer.setTime(gapSetAction.getTime());
-    delay = delaySetAction.getTime();
-    position = 0;
-  }
+  /**
+   * Creates SimpleTimer menu entry with the given laben and parent entry.
+   */
+  SimpleTimer(const char* label, MenuEntry *parentEntry);
   
-  virtual void enter()
-  {
-    LCD.clear();
-    LCD.setPosition(0,0);
-    LCD.print("Touch Trigger");
-    switch (position) {
-      case 0:
-        LCD.setPosition(0,1);
-        LCD.print("Timer: ");
-        LCD.printAndStay("Off");
-        break;
-      case 1:
-        delaySetAction.printStuff();
-        break;
-      case 2:
-        gapSetAction.printStuff();
-        break;
-      case 3:
-        photosSetAction.printStuff();
-        break;
-    }
-    Touchpad.setHandler(this);
-  }
+  /**
+   * Overrides MenuEntry::enter().
+   */
+  virtual void enter();
   
-  virtual void upChanged(bool pressed)
-  {}
+  /**
+   * Overrides TouchpadEventHandler::upChanged(bool pressed).
+   */
+  virtual void upChanged(bool pressed);
   
-  virtual void downChanged(bool pressed)
-  {
-    if (pressed) {
-      switch (position) {
-        case 0:
-          if (gapTimer.isStarted()) {
-            LCD.setPosition(0,1);
-            LCD.clearEOL();
-            LCD.print("Timer: ");
-            LCD.printAndStay("Off");
-            gapTimer.stop();
-          } else {
-            LCD.setPosition(0,1);
-            LCD.clearEOL();
-            LCD.print("Timer: ");
-            LCD.printAndStay("On");
-            gapTimer.startWithDelay(delay);
-          }
-          break;
-        case 1:
-          Touchpad.setHandler(&delaySetAction);
-          delaySetAction.enter();
-          break;
-        case 2:
-          Touchpad.setHandler(&gapSetAction);
-          gapSetAction.enter();
-          break;
-        case 3:
-          Touchpad.setHandler(&photosSetAction);
-          photosSetAction.enter();
-          break;
-      }
-    }
-  }
+  /**
+   * Overrides TouchpadEventHandler::downChanged(bool pressed).
+   */
+  virtual void downChanged(bool pressed);
   
-  virtual void leftChanged(bool pressed)
-  {
-    if (pressed) {
-      switch (position) {
-        case 1:
-          LCD.setPosition(0,1);
-          LCD.clearEOL();
-          LCD.print("Shutter: ");
-          LCD.printAndStay("Off");
-          position--;
-          break;
-        case 2:
-          delaySetAction.printStuff();
-          position--;
-          break;
-        case 3:
-          gapSetAction.printStuff();
-          position--;
-          break;
-      }
-    }
-  }
+  /**
+   * Overrides TouchpadEventHandler::leftChanged(bool pressed).
+   */
+  virtual void leftChanged(bool pressed);
   
-  virtual void rightChanged(bool pressed)
-  {
-    if (pressed) {
-      switch (position) {
-        case 0 :
-          delaySetAction.printStuff();
-          position++;
-          break;
-        case 1:
-          position++;
-          gapSetAction.printStuff();
-          break;
-        case 2:
-          position++;
-          photosSetAction.printStuff();
-          break;
-      }
-    }
-  }
+  /**
+   * Overrides TouchpadEventHandler::rightChanged(bool pressed).
+   */
+  virtual void rightChanged(bool pressed);
   
-  virtual void centerChanged(bool pressed)
-  {
-    if (pressed) {
-      Menu.returnToMenu();
-    }
-  }
+  /**
+   * Overrides TouchpadEventHandler::centerChanged(bool pressed).
+   */
+  virtual void centerChanged(bool pressed);
   
-  virtual void restoreHandler() {
-    Touchpad.setHandler(this);
-    switch (position) {
-      case 1:
-        delay = delaySetAction.getTime();
-        break;
-      case 2:
-        gapTimer.setTime(gapSetAction.getTime());
-      case 3:
-        photos = photosSetAction.getValue();
-        break;
-    }
-  }
+  /**
+   * Overrides ExtendedHandler::restoreHandler().
+   */
+  virtual void restoreHandler();
   
 protected:
-  virtual void loop()
-  {
-    switch (position) {
-      case 0:
-        if (gapTimer.isStarted()) {
-          Serial.println(gapTimer.until());
-        }
-        if (gapTimer.ready()) {
-          gapTimer.stop();
-          trigger();
-        }
-        break;
-      case 1:
-        delaySetAction.update();
-        break;
-      case 2:
-        gapSetAction.update();
-        break;
-      case 3:
-        photosSetAction.update();
-        break;
-    }
-  }
+  /**
+   *  Overrides MenuEntryCamTrigger::loop(). 
+   */
+  virtual void loop();
   
-  virtual void triggered(bool on)
-  {
-    if (on) {
-      digitalWrite(13, HIGH);
-    } else {
-      digitalWrite(13, LOW);
-      gapTimer.start();
-    }
-  }
+  /**
+   * Overrides MenuEntryCamTrigger::triggered(bool on).
+   */
+  virtual void triggered(bool on);
   
   SoftTimer gapTimer;
   int photos;
+  int photosMade;
   long delay;
  
   int position;
+  int active;
   
   TimeSetAction delaySetAction;
   TimeSetAction gapSetAction;

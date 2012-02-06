@@ -12,12 +12,18 @@
 class IntSetAction : public MenuAction
 {
 public:
+  /**
+   * Constructor which initializes the parent class MenuAction as well as all variables.
+   */
   IntSetAction(const char* label, ExtendedHandler* parentHandler, int defaultValue) : MenuAction(label, parentHandler)
   {
     pos = 6;
     value = defaultValue;
   }
   
+  /**
+   * Overrides MenuAction::printStuff();
+   */
   void printStuff()
   {
     LCD.setPosition(0, 1);
@@ -27,7 +33,11 @@ public:
     LCD.setPosition(11, 1);
     LCD.printFormatedNumber(value, 10000); 
   }
-  
+    
+  /**
+   * Overrides TouchpadEventHandler::enter();
+   */
+  virtual
   void enter()
   {
     Touchpad.setHandler(this);
@@ -35,8 +45,10 @@ public:
     LCD.startBlinkingBox();
     pos = 6;
   }
-  
-  
+
+  /**
+   * Overrides MenuAction::updateInput();
+   */
   virtual void updateInput() {
     modValue();
   }
@@ -51,6 +63,9 @@ public:
     LCD.setPosition(15, 1);
   }
   
+  /**
+   * Overrides TouchpadEventHandler::upChanged();
+   */
   virtual void upChanged(bool pressed)
   {
     if (pressed) {
@@ -64,6 +79,9 @@ public:
     }
   }
   
+  /**
+   * Overrides TouchpadEventHandler::downChanged();
+   */
   virtual void downChanged(bool pressed)
   {
     if (pressed) {
@@ -77,14 +95,23 @@ public:
     }
   }
   
+  /**
+   * Overrides TouchpadEventHandler::leftChanged();
+   */
   virtual void leftChanged(bool pressed)
   {
   }
   
+  /**
+   * Overrides TouchpadEventHandler::downChanged();
+   */
   virtual void rightChanged(bool pressed)
   {
   }
   
+  /**
+   * Returns the value which was set by the user.
+   */
   int getValue() 
   {
     return value;
