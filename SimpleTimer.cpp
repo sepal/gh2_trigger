@@ -172,15 +172,15 @@ virtual void SimpleTimer::triggered(bool on)
     digitalWrite(13, HIGH);
   } else {
     photosMade++;
-    if (photosMade > photos) {
+    if (photosMade <= photos || photos == 0) {
+      digitalWrite(13, LOW);
+      gapTimer.start();
+    } else {
       photosMade = 0;
       LCD.setPosition(0,1);
       LCD.print("Timer: ");
       LCD.printAndStay("Off");
       active = false;
-    } else {
-      digitalWrite(13, LOW);
-      gapTimer.start();
     }
   }
 }
