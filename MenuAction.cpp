@@ -8,14 +8,14 @@ MenuAction::MenuAction(const char* label, ExtendedHandler* parentHandler)
   wipeDetection = false;
 }
 
-virtual void MenuAction::update()
+void MenuAction::update()
 {
   if (inputTimer.ready()) {
     updateInput();
   }
 }
 
-virtual void MenuAction::centerChanged(bool pressed)
+void MenuAction::centerChanged(bool pressed)
 {
   if (pressed) {
     LCD.stopBlinkingBox();

@@ -14,7 +14,7 @@ SimpleTimer::SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryC
   active = false;
 }
 
-virtual void SimpleTimer::enter()
+void SimpleTimer::enter()
 {
   LCD.clear();
   LCD.setPosition(0,0);
@@ -38,10 +38,10 @@ virtual void SimpleTimer::enter()
   Touchpad.setHandler(this);
 }
 
-virtual void SimpleTimer::upChanged(bool pressed)
+void SimpleTimer::upChanged(bool pressed)
 {}
 
-virtual void SimpleTimer::downChanged(bool pressed)
+void SimpleTimer::downChanged(bool pressed)
 {
   if (pressed) {
     switch (position) {
@@ -78,7 +78,7 @@ virtual void SimpleTimer::downChanged(bool pressed)
   }
 }
 
-virtual void SimpleTimer::leftChanged(bool pressed)
+void SimpleTimer::leftChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
@@ -101,7 +101,7 @@ virtual void SimpleTimer::leftChanged(bool pressed)
   }
 }
 
-virtual void SimpleTimer::rightChanged(bool pressed)
+void SimpleTimer::rightChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
@@ -121,13 +121,13 @@ virtual void SimpleTimer::rightChanged(bool pressed)
   }
 }
 
-virtual void SimpleTimer::centerChanged(bool pressed)
+void SimpleTimer::centerChanged(bool pressed)
 {
   if (pressed && !active) {
     Menu.returnToMenu();
   }
 }
-virtual void SimpleTimer::restoreHandler()
+void SimpleTimer::restoreHandler()
 {
   Touchpad.setHandler(this);
   switch (position) {
@@ -142,13 +142,10 @@ virtual void SimpleTimer::restoreHandler()
   }
 }
 
-virtual void SimpleTimer::loop()
+void SimpleTimer::loop()
 {
   switch (position) {
     case 0:
-      if (gapTimer.isStarted()) {
-        Serial.println(gapTimer.until());
-      }
       if (gapTimer.ready()) {
         gapTimer.stop();
         trigger();
@@ -166,7 +163,7 @@ virtual void SimpleTimer::loop()
   }
 }
 
-virtual void SimpleTimer::triggered(bool on)
+void SimpleTimer::triggered(bool on)
 {
   if (on) {
     digitalWrite(13, HIGH);

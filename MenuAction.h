@@ -5,6 +5,7 @@
 #include "Touchpad.h"
 #include "TouchpadHandler.h"
 #include "ExtendedHandler.h"
+#include "SoftTimer.h"
 
 /**
  * Abstract class for menu actions.
