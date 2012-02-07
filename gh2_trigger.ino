@@ -2,7 +2,9 @@
 #include <I2Cdev.h>
 #include <MPR121.h>
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 
+#include "StorageHandler.h"
 #include "LCD.h"
 #include "Touchpad.h"
 #include "Menu.h"

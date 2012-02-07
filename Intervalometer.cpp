@@ -1,17 +1,22 @@
 
 #include "Intervalometer.h"
+#include "StorageHandler.h"
 
-Intervalometer::Intervalometer(const char* label, MenuEntry *prevEntry) : MenuEntryCamTrigger(label, prevEntry, 0), intervalSetAction("Intvl", this, 10000), lengthSetAction("Length", this, 0), exposuresSetAction("Exposures", this, 1)
+Intervalometer::Intervalometer(const char* label, MenuEntry *prevEntry) : MenuEntryCamTrigger(label, prevEntry, 0), 
+  intervalSetAction("Intvl", this, Storage.loadLong(STORAGE_INTERVAL_INTERVAL)), 
+  lengthSetAction("Length", this, Storage.loadLong(STORAGE_INTERVAL_LENGTH)), 
+  exposureTime("Ex Tm", this, Storage.loadLong(STORAGE_INTERVAL_EXPOSURE))
 {
-  shutterOffTimer.setTime(0.1f);
   pinMode(13, OUTPUT);
   position = 0;
   active = false;
   wipeDetection = false;
+  dataSaved = false;
   
+  shutterOffTimer.setTime(exposureTime.getTime());
   intervalTimer.setTime(intervalSetAction.getTime());
   frames = INTERVALOMETER_FPS*lengthSetAction.getTime()/1000;
-  exposuresMade = framesMade = 0;
+  framesMade = 0;
 }
 
 void Intervalometer::enter()
@@ -31,7 +36,10 @@ void Intervalometer::enter()
       lengthSetAction.printStuff();
       break;
     case 3:
-      exposuresSetAction.printStuff();
+      exposureTime.printStuff();
+    case 4:
+      LCD.setPosition(0,1);
+      LCD.print((dataSaved) ? "Data is saved.  " : "Save as default?");
       break;
   }
   Touchpad.setHandler(this);
@@ -65,6 +73,10 @@ void Intervalometer::leftChanged(bool pressed)
         lengthSetAction.printStuff();
         position--;
         break;
+      case 4:
+        exposureTime.printStuff();
+        position--;
+        break;
     }
   }
 }
@@ -83,7 +95,12 @@ void Intervalometer::rightChanged(bool pressed)
         break;
       case 2:
         position++;
-        exposuresSetAction.printStuff();
+        exposureTime.printStuff();
+        break;
+      case 3:
+        position++;
+        LCD.setPosition(0,1);
+        LCD.print((dataSaved) ? "Data is saved.  " : "Save as default?");
         break;
     }
   }
@@ -108,7 +125,6 @@ void Intervalometer::centerChanged(bool pressed)
           intervalTimer.start();
           active = true;
           framesMade = 0;
-          exposuresMade = 0;
         }
         break;
       case 1:
@@ -120,9 +136,22 @@ void Intervalometer::centerChanged(bool pressed)
         lengthSetAction.enter();
         break;
       case 3:
-        Touchpad.setHandler(&exposuresSetAction);
-        exposuresSetAction.enter();
+        Touchpad.setHandler(&exposureTime);
+        exposureTime.enter();
         break;
+    case 4:
+      if (!dataSaved)  {
+        LCD.setPosition(0,1);
+        LCD.printAndStay("Saving data.    ");
+        Storage.save(STORAGE_INTERVAL_INTERVAL, intervalSetAction.getTime());
+        LCD.printAndStay("Saving data..   ");
+        Storage.save(STORAGE_INTERVAL_LENGTH, lengthSetAction.getTime());
+        LCD.printAndStay("Saving data...  ");
+        Storage.save(STORAGE_INTERVAL_EXPOSURE, exposureTime.getTime());
+        LCD.printAndStay("Data is saved.  ");
+        dataSaved = true;
+      }
+      break;
     }
   }
 }
@@ -132,11 +161,18 @@ void Intervalometer::restoreHandler()
   Touchpad.setHandler(this);
   switch (position) {
     case 1:
+      dataSaved = false;
       intervalTimer.setTime(intervalSetAction.getTime());
       break;
     case 2:
+      dataSaved = false;
       frames = INTERVALOMETER_FPS*lengthSetAction.getTime()/1000;
       break;
+    case 3:
+      dataSaved = false;
+      shutterOffTimer.setTime(exposureTime.getTime());
+      break;
+      
   }
 }
 
@@ -155,7 +191,7 @@ void Intervalometer::loop()
       lengthSetAction.update();
       break;
     case 3:
-      exposuresSetAction.update();
+      exposureTime.update();
       break;
   }
 }
@@ -166,33 +202,27 @@ void Intervalometer::triggered(bool on)
     digitalWrite(13, HIGH);
   } else {
     digitalWrite(13, LOW);
-    exposuresMade++;
-    if (exposuresMade < exposuresSetAction.getValue()) {
-      trigger();
+    framesMade++;
+    if (framesMade >= frames && frames != 0) {
+      intervalTimer.stop();
+      LCD.setPosition(0,1);
+      LCD.print("TL: [C] to start");
+      active = false;
+      framesMade = 0;
     } else {
-      framesMade++;
-      exposuresMade = 0;
-      if (framesMade >= frames && frames != 0) {
-        intervalTimer.stop();
-        LCD.setPosition(0,1);
-        LCD.print("TL: [C] to start");
-        active = false;
-        framesMade = 0;
-      } else {
-        int framesCalc = (frames == 0) ? framesMade : (frames-framesMade);
+      int framesCalc = (frames == 0) ? framesMade : (frames-framesMade);
 
-        int seconds = framesCalc/INTERVALOMETER_FPS;
-        int frame = framesCalc - (INTERVALOMETER_FPS*seconds);
-        int minutes = seconds/60;
-        seconds -= (60*minutes);
-        
-        LCD.setPosition(8, 1);
-        LCD.printFormatedNumber(minutes, 10);
-        LCD.print(':');
-        LCD.printFormatedNumber(seconds, 10);
-        LCD.print('.');
-        LCD.printFormatedNumber(frame, 10);
-      }
+      int seconds = framesCalc/INTERVALOMETER_FPS;
+      int frame = framesCalc - (INTERVALOMETER_FPS*seconds);
+      int minutes = seconds/60;
+      seconds -= (60*minutes);
+      
+      LCD.setPosition(8, 1);
+      LCD.printFormatedNumber(minutes, 10);
+      LCD.print(':');
+      LCD.printFormatedNumber(seconds, 10);
+      LCD.print('.');
+      LCD.printFormatedNumber(frame, 10);
     }
   }
 }

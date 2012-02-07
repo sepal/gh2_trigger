@@ -74,11 +74,11 @@ protected:
   int position;
   int active;
   long frames, framesMade;
-  byte exposuresMade;
+  bool dataSaved;
   
   TimeSetAction intervalSetAction;
   TimeSetAction lengthSetAction;
-  IntSetAction exposuresSetAction;
+  TimeSetAction exposureTime;;
   
 };
 
