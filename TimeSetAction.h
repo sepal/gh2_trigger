@@ -157,27 +157,27 @@ protected:
   void modTime() {
     switch (pos) {
       case 0:
-        modifyTime(&cMinutes, 10, 7, 59);
+        modifyTime(&cMinutes, 10, 7, 59, 10);
         break;
       case 1:
-        modifyTime(&cMinutes, 1, 7, 59);
+        modifyTime(&cMinutes, 1, 7, 59, 10);
         break;
         
       case 3:
-        modifyTime(&cSeconds, 10, 10, 59);
+        modifyTime(&cSeconds, 10, 10, 59, 10);
         break;
       case 4:
-        modifyTime(&cSeconds, 1, 10, 59);
+        modifyTime(&cSeconds, 1, 10, 59, 10);
         break;
         
       case 6:
-        modifyTime(&cMillis, 100, 13, 999);
+        modifyTime(&cMillis, 100, 13, 999, 100);
         break;
       case 7:
-        modifyTime(&cMillis, 10, 13, 999);
+        modifyTime(&cMillis, 10, 13, 999, 100);
         break;
       case 8:
-        modifyTime(&cMillis, 1, 13, 999);
+        modifyTime(&cMillis, 1, 13, 999, 100);
         break;
     }
   }
@@ -186,7 +186,7 @@ protected:
    * Add or subtract a value of variable and print it.
    * this function is used to to modify the members cMinute, cSecond and cMillis.
    */
-  void modifyTime(int *var, int times, int lcdPos, int max) {
+  void modifyTime(int *var, int times, int lcdPos, int max, int lcdBase) {
     (*var)+=add*times;
     if ((*var) > max) {
       (*var) -= (max+1);
@@ -195,7 +195,7 @@ protected:
     }
     byte orgPos = LCD.getPosition();
     LCD.setPosition(lcdPos, 1);
-    LCD.printFormatedNumber((*var), 10);
+    LCD.printFormatedNumber((*var), lcdBase);
     LCD.setPosition(orgPos, 1);
   }
 };
