@@ -1,5 +1,6 @@
 
 #include "MenuEntryCamTrigger.h"
+#include "LCD.h"
 
 
 MenuEntryCamTrigger::MenuEntryCamTrigger(const char* label) : MenuEntry(label)
@@ -66,7 +67,7 @@ void MenuEntryCamTrigger::storeDefaults()
   if (!dataSaved)  {
     LCD.setPosition(0,1);
     LCD.printAndStay("Saving data...  ");
-    save();
+    saveData();
     LCD.printAndStay("Data is saved.  ");
     dataSaved = true;
   }

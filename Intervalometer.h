@@ -68,6 +68,11 @@ protected:
    */
   virtual void triggered(bool on);
   
+  /**
+   * Overrides MenuEntryCamTrigger::saveData(bool on).
+   */
+  virtual void saveData();
+  
   SoftTimer intervalTimer;
   long delay;
  
