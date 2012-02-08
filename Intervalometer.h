@@ -73,6 +73,15 @@ protected:
    */
   virtual void saveData();
   
+  enum Actions
+  {
+    ACTION_START,
+    ACTION_INTERVAL,
+    ACTION_LENGTH,
+    ACTION_EXPOSURE,
+    ACTION_SAVE,
+  };
+  
   SoftTimer intervalTimer;
   long delay;
  
@@ -83,7 +92,8 @@ protected:
   
   TimeSetAction intervalSetAction;
   TimeSetAction lengthSetAction;
-  TimeSetAction exposureTime;;
+  TimeSetAction exposureTime;
+  
   
 };
 

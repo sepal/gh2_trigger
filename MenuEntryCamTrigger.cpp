@@ -6,17 +6,19 @@
 MenuEntryCamTrigger::MenuEntryCamTrigger(const char* label) : MenuEntry(label)
 {
   block = false;
-  
+  dataSaved = true;
 }
 
 MenuEntryCamTrigger::MenuEntryCamTrigger(const char* label, MenuEntry *prevEntry) : MenuEntry(label, prevEntry)
 {
   block = false;
+  dataSaved = true;
 }
 
 MenuEntryCamTrigger::MenuEntryCamTrigger(const char* label, MenuEntry *prevEntry, MenuEntry *parentEntry) : MenuEntry(label, prevEntry, parentEntry)
 {
   block = false;
+  dataSaved = true;
 }
 
 void MenuEntryCamTrigger::update()

@@ -8,10 +8,9 @@ Intervalometer::Intervalometer(const char* label, MenuEntry *prevEntry) : MenuEn
   exposureTime("Ex Tm", this, Storage.loadLong(STORAGE_INTERVAL_EXPOSURE))
 {
   pinMode(13, OUTPUT);
-  position = 0;
+  position = ACTION_START;
   active = false;
   wipeDetection = false;
-  dataSaved = false;
   
   shutterOffTimer.setTime(exposureTime.getTime());
   intervalTimer.setTime(intervalSetAction.getTime());
@@ -25,19 +24,19 @@ void Intervalometer::enter()
   LCD.setPosition(0,0);
   LCD.print(label);
   switch (position) {
-    case 0:
+    case ACTION_START:
       LCD.setPosition(0,1);
       LCD.print("TL: [C] to start");
       break;
-    case 1:
+    case ACTION_INTERVAL:
       intervalSetAction.printStuff();
       break;
-    case 2:
+    case ACTION_LENGTH:
       lengthSetAction.printStuff();
       break;
-    case 3:
+    case ACTION_EXPOSURE:
       exposureTime.printStuff();
-    case 4:
+    case ACTION_SAVE:
         printSave();
       break;
   }
@@ -59,20 +58,20 @@ void Intervalometer::leftChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
-      case 1:
+      case ACTION_INTERVAL:
         LCD.setPosition(0,1);
         LCD.print("TL: [C] to start");
         position--;
         break;
-      case 2:
+      case ACTION_LENGTH:
         intervalSetAction.printStuff();
         position--;
         break;
-      case 3:
+      case ACTION_EXPOSURE:
         lengthSetAction.printStuff();
         position--;
         break;
-      case 4:
+      case ACTION_SAVE:
         exposureTime.printStuff();
         position--;
         break;
@@ -84,19 +83,19 @@ void Intervalometer::rightChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
-      case 0 :
+      case ACTION_START :
         position++;
         intervalSetAction.printStuff();
         break;
-      case 1:
+      case ACTION_INTERVAL:
         position++;
         lengthSetAction.printStuff();
         break;
-      case 2:
+      case ACTION_LENGTH:
         position++;
         exposureTime.printStuff();
         break;
-      case 3:
+      case ACTION_EXPOSURE:
         position++;
         printSave();
         break;
@@ -108,7 +107,7 @@ void Intervalometer::centerChanged(bool pressed)
 {
   if (pressed) {
     switch (position) {
-      case 0:
+      case ACTION_START:
         if (active) {
           LCD.setPosition(0,1);
           LCD.clearEOL();
@@ -125,21 +124,21 @@ void Intervalometer::centerChanged(bool pressed)
           framesMade = 0;
         }
         break;
-      case 1:
+      case ACTION_INTERVAL:
         Touchpad.setHandler(&intervalSetAction);
         intervalSetAction.enter();
         break;
-      case 2:
+      case ACTION_LENGTH:
         Touchpad.setHandler(&lengthSetAction);
         lengthSetAction.enter();
         break;
-      case 3:
+      case ACTION_EXPOSURE:
         Touchpad.setHandler(&exposureTime);
         exposureTime.enter();
         break;
-    case 4:
-      storeDefaults();
-      break;
+      case ACTION_SAVE:
+        storeDefaults();
+        break;
     }
   }
 }
@@ -148,16 +147,16 @@ void Intervalometer::restoreHandler()
 {
   Touchpad.setHandler(this);
   switch (position) {
-    case 1:
-      dataSaved = false;
+    case ACTION_INTERVAL:
+      dataModified();
       intervalTimer.setTime(intervalSetAction.getTime());
       break;
-    case 2:
-      dataSaved = false;
+    case ACTION_LENGTH:
+      dataModified();
       frames = INTERVALOMETER_FPS*lengthSetAction.getTime()/1000;
       break;
-    case 3:
-      dataSaved = false;
+    case ACTION_EXPOSURE:
+      dataModified();
       shutterOffTimer.setTime(exposureTime.getTime());
       break;
       
@@ -167,18 +166,18 @@ void Intervalometer::restoreHandler()
 void Intervalometer::loop()
 {
   switch (position) {
-    case 0:
+    case ACTION_START:
       if (intervalTimer.ready()) {
         trigger();
       }
       break;
-    case 1:
+    case ACTION_INTERVAL:
       intervalSetAction.update();
       break;
-    case 2:
+    case ACTION_LENGTH:
       lengthSetAction.update();
       break;
-    case 3:
+    case ACTION_EXPOSURE:
       exposureTime.update();
       break;
   }

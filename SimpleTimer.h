@@ -66,6 +66,20 @@ protected:
    */
   virtual void triggered(bool on);
   
+  /**
+   * Overrides MenuEntryCamTrigger::saveData(bool on).
+   */
+  virtual void saveData();
+  
+  enum Actions
+  {
+    ACTION_TRIGGER,
+    ACTION_DELAY,
+    ACTION_GAP,
+    ACTION_PHOTOS,
+    ACTION_SAVE,
+  };
+  
   SoftTimer gapTimer;
   int photos;
   int photosMade;

@@ -1,7 +1,12 @@
 
 #include "SimpleTimer.h"
+#include "StorageHandler.h"
 
-SimpleTimer::SimpleTimer(const char* label, MenuEntry *parentEntry) : MenuEntryCamTrigger(label, 0, parentEntry), delaySetAction("Delay", this, 1000), gapSetAction("Gap", this, 3000), photosSetAction("Pictures", this, 5)
+SimpleTimer::SimpleTimer(const char* label, MenuEntry *parentEntry) : 
+  MenuEntryCamTrigger(label, 0, parentEntry),
+  delaySetAction("Delay", this, Storage.loadLong(STORAGE_SIMPLE_TIMER_DELAY)),
+  gapSetAction("Gap", this, Storage.loadLong(STORAGE_SIMPLE_TIMER_GAP)),
+  photosSetAction("Pictures", this, Storage.loadLong(STORAGE_SIMPLE_TIMER_PHOTOS))
 {
   pinMode(13, OUTPUT);
   shutterOffTimer.setTime(0.5f);
@@ -20,19 +25,22 @@ void SimpleTimer::enter()
   LCD.setPosition(0,0);
   LCD.print(label);
   switch (position) {
-    case 0:
+    case ACTION_TRIGGER:
       LCD.setPosition(0,1);
       LCD.print("Timer: ");
       LCD.printAndStay("Off");
       break;
-    case 1:
+    case ACTION_DELAY:
       delaySetAction.printStuff();
       break;
-    case 2:
+    case ACTION_GAP:
       gapSetAction.printStuff();
       break;
-    case 3:
+    case ACTION_PHOTOS:
       photosSetAction.printStuff();
+      break;
+    case ACTION_SAVE:
+      printSave();
       break;
   }
   Touchpad.setHandler(this);
@@ -53,19 +61,23 @@ void SimpleTimer::leftChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
-      case 1:
+      case ACTION_DELAY:
         LCD.setPosition(0,1);
         LCD.clearEOL();
         LCD.print("Timer: ");
         LCD.printAndStay("Off");
         position--;
         break;
-      case 2:
+      case ACTION_GAP:
         delaySetAction.printStuff();
         position--;
         break;
-      case 3:
+      case ACTION_PHOTOS:
         gapSetAction.printStuff();
+        position--;
+        break;
+      case ACTION_SAVE:
+        photosSetAction.printStuff();
         position--;
         break;
     }
@@ -76,17 +88,21 @@ void SimpleTimer::rightChanged(bool pressed)
 {
   if (pressed && !active) {
     switch (position) {
-      case 0 :
+      case ACTION_TRIGGER :
         delaySetAction.printStuff();
         position++;
         break;
-      case 1:
+      case ACTION_DELAY:
         position++;
         gapSetAction.printStuff();
         break;
-      case 2:
+      case ACTION_GAP:
         position++;
         photosSetAction.printStuff();
+        break;
+      case ACTION_PHOTOS:
+        position++;
+        printSave();
         break;
     }
   }
@@ -96,7 +112,7 @@ void SimpleTimer::centerChanged(bool pressed)
 {
   if (pressed) {
     switch (position) {
-      case 0:
+      case ACTION_TRIGGER:
         if (active) {
           LCD.setPosition(0,1);
           LCD.clearEOL();
@@ -113,17 +129,20 @@ void SimpleTimer::centerChanged(bool pressed)
           active = true;
         }
         break;
-      case 1:
+      case ACTION_DELAY:
         Touchpad.setHandler(&delaySetAction);
         delaySetAction.enter();
         break;
-      case 2:
+      case ACTION_GAP:
         Touchpad.setHandler(&gapSetAction);
         gapSetAction.enter();
         break;
-      case 3:
+      case ACTION_PHOTOS:
         Touchpad.setHandler(&photosSetAction);
         photosSetAction.enter();
+        break;
+      case ACTION_SAVE:
+        storeDefaults();
         break;
     }
   }
@@ -133,12 +152,15 @@ void SimpleTimer::restoreHandler()
 {
   Touchpad.setHandler(this);
   switch (position) {
-    case 1:
+    case ACTION_DELAY:
+      dataModified();
       delay = delaySetAction.getTime();
       break;
-    case 2:
+    case ACTION_GAP:
+      dataModified();
       gapTimer.setTime(gapSetAction.getTime());
-    case 3:
+    case ACTION_PHOTOS:
+      dataModified();
       photos = photosSetAction.getValue();
       break;
   }
@@ -147,19 +169,19 @@ void SimpleTimer::restoreHandler()
 void SimpleTimer::loop()
 {
   switch (position) {
-    case 0:
+    case ACTION_TRIGGER:
       if (gapTimer.ready()) {
         gapTimer.stop();
         trigger();
       }
       break;
-    case 1:
+    case ACTION_DELAY:
       delaySetAction.update();
       break;
-    case 2:
+    case ACTION_GAP:
       gapSetAction.update();
       break;
-    case 3:
+    case ACTION_PHOTOS:
       photosSetAction.update();
       break;
   }
@@ -182,4 +204,11 @@ void SimpleTimer::triggered(bool on)
       active = false;
     }
   }
+}
+
+void SimpleTimer::saveData()
+{
+  Storage.save(STORAGE_SIMPLE_TIMER_DELAY, delaySetAction.getTime());
+  Storage.save(STORAGE_SIMPLE_TIMER_GAP, gapSetAction.getTime());
+  Storage.save(STORAGE_SIMPLE_TIMER_PHOTOS, photosSetAction.getValue());
 }
