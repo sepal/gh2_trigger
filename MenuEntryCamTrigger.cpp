@@ -54,3 +54,25 @@ void MenuEntryCamTrigger::trigger(float seconds)
   triggered(true);
   block = true;
 }
+
+void MenuEntryCamTrigger::printSave()
+{
+  LCD.setPosition(0,1);
+  LCD.print((dataSaved) ? "Data is saved.  " : "Save as default?");
+}
+  
+void MenuEntryCamTrigger::storeDefaults()
+{
+  if (!dataSaved)  {
+    LCD.setPosition(0,1);
+    LCD.printAndStay("Saving data...  ");
+    save();
+    LCD.printAndStay("Data is saved.  ");
+    dataSaved = true;
+  }
+}
+
+void MenuEntryCamTrigger::dataModified()
+{
+  dataSaved = false;
+}

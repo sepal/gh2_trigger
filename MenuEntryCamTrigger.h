@@ -74,8 +74,31 @@ protected:
    */
   virtual void triggered(bool on) = 0;
   
+  /**
+   * Prints the save action label.
+   */
+  void printSave();
+  
+  /**
+   * Children classes should use this function to store data.
+   */
+  virtual void saveData() {}
+  
+  /**
+   * Actual function which should be called to save data as default, which will then call saveData() 
+   * and print stuff to the LCD.
+   */
+   virtual void storeDefaults();
+  
+  
+  /**
+   * Tell the class that data was modified and can know be stored.
+   */
+   void dataModified();
+   
   // Timer which deaktives the shutter.
   bool block;
+  bool dataSaved;
   
   SoftTimer shutterOffTimer;
 };

@@ -38,8 +38,7 @@ void Intervalometer::enter()
     case 3:
       exposureTime.printStuff();
     case 4:
-      LCD.setPosition(0,1);
-      LCD.print((dataSaved) ? "Data is saved.  " : "Save as default?");
+        printSave();
       break;
   }
   Touchpad.setHandler(this);
@@ -99,8 +98,7 @@ void Intervalometer::rightChanged(bool pressed)
         break;
       case 3:
         position++;
-        LCD.setPosition(0,1);
-        LCD.print((dataSaved) ? "Data is saved.  " : "Save as default?");
+        printSave();
         break;
     }
   }
@@ -140,17 +138,7 @@ void Intervalometer::centerChanged(bool pressed)
         exposureTime.enter();
         break;
     case 4:
-      if (!dataSaved)  {
-        LCD.setPosition(0,1);
-        LCD.printAndStay("Saving data.    ");
-        Storage.save(STORAGE_INTERVAL_INTERVAL, intervalSetAction.getTime());
-        LCD.printAndStay("Saving data..   ");
-        Storage.save(STORAGE_INTERVAL_LENGTH, lengthSetAction.getTime());
-        LCD.printAndStay("Saving data...  ");
-        Storage.save(STORAGE_INTERVAL_EXPOSURE, exposureTime.getTime());
-        LCD.printAndStay("Data is saved.  ");
-        dataSaved = true;
-      }
+      storeDefaults();
       break;
     }
   }
@@ -225,4 +213,11 @@ void Intervalometer::triggered(bool on)
       LCD.printFormatedNumber(frame, 10);
     }
   }
+}
+
+void Intervalometer::saveData()
+{
+  Storage.save(STORAGE_INTERVAL_INTERVAL, intervalSetAction.getTime());
+  Storage.save(STORAGE_INTERVAL_LENGTH, lengthSetAction.getTime());
+  Storage.save(STORAGE_INTERVAL_EXPOSURE, exposureTime.getTime());
 }
